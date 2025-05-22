@@ -23,12 +23,13 @@ memory = MemorySaver()
 
 @asynccontextmanager
 async def make_graph(mcp_tools: Dict[str, Dict[str, str]]):
-    async with MultiServerMCPClient(mcp_tools) as client:
-        model = ChatAnthropic(
-            model="claude-3-5-haiku-20241022", temperature=0.0, max_tokens=8192
-        )
-        agent = create_react_agent(model, client.get_tools(), checkpointer=memory)
-        yield agent
+    client = MultiServerMCPClient(mcp_tools)
+    tools = await client.get_tools()
+    model = ChatAnthropic(
+        model="claude-3-5-haiku-20241022", temperature=0.0, max_tokens=8192
+    )
+    agent = create_react_agent(model, tools, checkpointer=memory)
+    yield agent
 
 
 async def call_model(
